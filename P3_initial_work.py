@@ -10,10 +10,13 @@ import matplotlib.pyplot as plt
 import PIL
 import PIL.Image
 from yaml import parse
-import pillow
 
-dir = '/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train'
-os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train')
+
+#dir = '/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train'    #laptop
+#os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train')
+
+dir = '/Users/harri/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train'           #desktop
+os.chdir('/Users/harri/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train')
 f = open('digitStruct.json',)
 data = json.load(f)
 
@@ -29,8 +32,7 @@ data = json.load(f)
 
 
 
-data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN')
-
+data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN(2)')
 image_count = len(list(data_dir.glob('*/*.png')))
 image = list(data_dir.glob('*/*.png'))
 print(image_count)
@@ -43,17 +45,6 @@ plt.show()
 
 
 
-
-
-
-
-
-for i in range(image_count):
-  img = cv2.imread(str(image[i]))
-  if i == 0: 
-    max_shape = img.shape
-  if img.shape[0] > max_shape[0] & img.shape[1] > max_shape[1] :
-    max_shape = img.shape
 
 
 
