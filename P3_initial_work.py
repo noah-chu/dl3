@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import PIL
 import PIL.Image
 from yaml import parse
-import pillow
 
-dir = '/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train'
-os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train')
+# read in JSON file 
+dir = '/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train'
+os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train')
 f = open('digitStruct.json',)
 data = json.load(f)
 
@@ -28,16 +28,12 @@ data = json.load(f)
 #                                    untar=True)
 
 
-
-data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN')
-
+# check original image file
+data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_train')
 image_count = len(list(data_dir.glob('*/*.png')))
 image = list(data_dir.glob('*/*.png'))
-print(image_count)
-
-
-
-plt.imshow(PIL.Image.open(str(image[2])))
+print(image_count) #number of images in file
+plt.imshow(PIL.Image.open(str(image[0])))
 plt.show()
 
 
@@ -48,75 +44,116 @@ plt.show()
 
 
 
-for i in range(image_count):
-  img = cv2.imread(str(image[i]))
-  if i == 0: 
-    max_shape = img.shape
-  if img.shape[0] > max_shape[0] & img.shape[1] > max_shape[1] :
-    max_shape = img.shape
+
 
 
 
 
 ### grayscale and store ###
-img = cv2.imread(str(image[0]))
-img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-cv2.imshow("result", img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-  
-# save a image using extension
-os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN\\grayscale')
-cv2.imwrite('1.png', img)
-
-
-
-
-
-
-
-
-
-
-
-# read image
+os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_grayscaled\\train')
 for i in range(image_count):
   img = cv2.imread(str(image[i]))
-  
-  old_image_height, old_image_width, channels = (img.shape)
-  
-  if i == 0:
-    max_shape = img.shape
-  if img.shape > max_shape:
-    max_shape = img.shape
+  img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+  #cv2.imshow("result", img)
+  #cv2.waitKey(0)
+  #cv2.destroyAllWindows()
+  # save a image using extension
+  cv2.imwrite("%s.png"%(i+1), img)
 
-  # create new image of desired size and color (blue) for padding
-  new_image_width = img.shape[0]
-  new_image_height = 300
-  color = (255,0,0)
-  result = np.full((new_image_height,new_image_width, channels), color, dtype=np.uint8)
 
-  # compute center offset
-  x_center = (new_image_width - old_image_width) // 2
-  y_center = (new_image_height - old_image_height) // 2
 
-  # copy img image into center of result image
-  result[y_center:y_center+old_image_height, 
-        x_center:x_center+old_image_width] = img
 
-  # view result
-  cv2.imshow("result", result)
-  cv2.waitKey(0)
-  cv2.destroyAllWindows()
+
+### find max shape of grayscaled images ###
+
+
+data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN')
+image_count = len(list(data_dir.glob('*/*.png')))
+image_gray = list(data_dir.glob('*/*.png'))
+print(image_count) #number of images in file (46470)
 
 
 
 
 
 
-  cv2.imshow("result", img)
-  cv2.waitKey(0)
-  cv2.destroyAllWindows()
+
+
+### pad grayscaled images ###
+
+  #evaluate max dimensions over all pictures 
+data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_grayscaled_(all)')
+image_count = len(list(data_dir.glob('*/*.png')))
+image_gray = list(data_dir.glob('*/*.png'))
+print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
+
+
+"""
+:param images: sequence of images
+:return: list of images padded so that all images have same width and height (max width and height are used)
+"""
+
+width_max = 0
+height_max = 0
+for i in range(image_count):
+    img = cv2.imread(str(image_gray[i]))
+    h, w = img.shape[:2]
+    width_max = max(width_max, w)
+    height_max = max(height_max, h)
+    
+
+
+#pad images, but store in separate train/test files
+
+data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_grayscaled_train')
+image_count = len(list(data_dir.glob('*/*.png')))
+image_gray = list(data_dir.glob('*/*.png'))
+print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
+
+
+
+os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train\\train')
+images_padded = []
+for i in range(image_count):
+    img = cv2.imread(str(image_gray[i]))
+    h, w = img.shape[:2]
+    diff_vert = height_max - h
+    pad_top = diff_vert//2
+    pad_bottom = diff_vert - pad_top
+    diff_hori = width_max - w
+    pad_left = diff_hori//2
+    pad_right = diff_hori - pad_left
+    img_padded = cv2.copyMakeBorder(img, pad_top, pad_bottom, pad_left, pad_right, cv2.BORDER_CONSTANT, value=0)
+    assert img_padded.shape[:2] == (height_max, width_max)
+    cv2.imwrite("%s.png"%(i+1), img_padded)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class_names = train_ds.class_names
