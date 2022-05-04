@@ -15,26 +15,29 @@ from yaml import parse
 import glob
 
 
-
-data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
+#data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
+data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#desktop
 image_count = len(list(data_dir.glob('*/*.png')))
 I = list(data_dir.glob('*/*.png'))
 print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
+s = cv2.imread(str(I[1]),cv2.IMREAD_GRAYSCALE)
+s.shape
 
-s = plt.imread(str(I[1]))
 
 plt.imshow(s)
 plt.show()
+
+
 
 # create training set
 x_train =[]
 y_train=[]
 for i in range(20):
   if i < 10:
-    s = plt.imread(str(I[i])) 
+    s = cv2.imread(str(I[i]),cv2.IMREAD_GRAYSCALE) 
     x_train.append(s)
   else:
-    s = plt.imread(str(I[i])) 
+    s = cv2.imread(str(I[i]),cv2.IMREAD_GRAYSCALE)
     y_train.append(s)
 
 
@@ -59,29 +62,24 @@ y_train = y_train / 255.0
 
 len(x_train)
 
-
-data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')
+#data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#laptop
+data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#desktop
 image_count = len(list(data_dir.glob('*/*.png')))
 I = list(data_dir.glob('*/*.png'))
 print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
 s = cv2.imread(str(I[0]))
 s.shape
 
-plt.imshow(s)
-plt.show()
-
-s.shape
-s
 
 
 x_test =[]
 y_test=[]
 for i in range(20):
   if i < 10:
-    s = plt.imread(str(I[i])) 
+    s = cv2.imread(str(I[i]),cv2.IMREAD_GRAYSCALE) 
     x_test.append(s)
   else:
-    s = plt.imread(str(I[i])) 
+    s = cv2.imread(str(I[i]),cv2.IMREAD_GRAYSCALE) 
     y_test.append(s)
 
 
@@ -94,22 +92,18 @@ x_test = x_test / 255.0
 y_test = y_test / 255.0
 #x_test = x_test / 255.0
 
-x_train[0].shape
 
 
 
-x_train.shape
 
-x_train = x_train.reshape((x_train.shape[0], 516, 1083, 3))
-x_test = x_test.reshape((x_test.shape[0], 516, 1083, 3))
-plt.imshow(x_train[3])
-plt.show()
+
+
 
 y_train = np_utils.to_categorical(y_train)
 y_test = np_utils.to_categorical(y_test)
 
 
-############### CNN ################
+############### CNN TRY 1 ################
 
 def create_cnn(width, height, depth, filters=(16, 32, 64), regress=False):
 	# initialize the input shape and channel dimension, assuming
@@ -146,48 +140,159 @@ def create_cnn(width, height, depth, filters=(16, 32, 64), regress=False):
             return model
         
 tf.keras.backend.clear_session()
-model = create_cnn(1083,516,3)
+model = create_cnn(1083,516,1)
 
 
 
 model.summary()
-model.compile(loss='mean_absolute_error',optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
+model.compile(loss='mean_absolute_percentage_error',optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
 history = model.fit(x=x_train,y=y_train, validation_data=(x_test,y_test), batch_size=32, epochs=1)
 
 
 
-# define cnn model
-def define_model():
-	model = Sequential()
-	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', input_shape=(28, 28, 1)))
-	model.add(MaxPooling2D((2, 2)))
-	model.add(Flatten())
-	model.add(Dense(100, activation='relu', kernel_initializer='he_uniform'))
-	model.add(Dense(10, activation='softmax'))
-	# compile model
-	opt = SGD(learning_rate=0.01, momentum=0.9)
-	model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
-	return model
 
 
 
-# evaluate a model using k-fold cross-validation
-def evaluate_model(dataX, dataY, n_folds=5):
-	scores, histories = list(), list()
-	# prepare cross validation
-	kfold = KFold(n_folds, shuffle=True, random_state=1)
-	# enumerate splits
-	for train_ix, test_ix in kfold.split(dataX):
-		# define model
-		model = define_model()
-		# select rows for train and test
-		trainX, trainY, testX, testY = dataX[train_ix], dataY[train_ix], dataX[test_ix], dataY[test_ix]
-		# fit model
-		history = model.fit(trainX, trainY, epochs=10, batch_size=32, validation_data=(testX, testY), verbose=0)
-		# evaluate model
-		_, acc = model.evaluate(testX, testY, verbose=0)
-		print('> %.3f' % (acc * 100.0))
-		# stores scores
-		scores.append(acc)
-		histories.append(history)
-	return scores, histories
+
+
+
+
+
+
+
+
+
+
+
+
+
+################## CNN TRY 2 #############################
+
+tf.keras.backend.clear_session()
+
+
+inputs = tf.keras.layers.Input(shape=(516,1083,1), name='input') 
+x = tf.keras.layers.Conv2D(32, (3, 3), input_shape=x_train.shape[1:], activation='relu', padding='same')(inputs)
+#x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+
+x = tf.keras.layers.Conv2D(64, 3, activation='relu', padding='same')(x)
+x = tf.keras.layers.MaxPooling2D(2)(x)
+#x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+   
+x = tf.keras.layers.Conv2D(128, 3, activation='relu', padding='same')(x)
+x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+
+
+x = tf.keras.layers.Conv2D(64, 3, activation='relu', padding='same')(x)
+x = tf.keras.layers.MaxPooling2D(2)(x)
+#x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+    
+x = tf.keras.layers.Conv2D(128, 3, activation='relu', padding='same')(x)
+#x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+x = tf.keras.layers.Flatten()(x)
+#x = tf.keras.layers.Dropout(0.2)(x)
+
+
+x = tf.keras.layers.Dense(32, activation='relu')(x)
+#x = tf.keras.layers.Dropout(0.3)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+yhat = tf.keras.layers.Dense(6, activation='softmax')(x)
+
+
+
+
+model = tf.keras.Model(inputs = inputs, outputs = yhat)
+model.summary()
+#Compile model
+model.compile(loss = 'sparse_categorical_crossentropy', optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
+
+#Fit model
+model.fit(x=x_train,y=y_train, batch_size=10, epochs=1) 
+
+
+
+
+
+
+
+
+
+
+
+################# CNN TRY 3 ####################
+
+
+
+inputs = tf.keras.layers.Input(shape=(516,1083,1), name='input') 
+#Conv2D layer (2D does not refer to gray scale (a PET scan would be 3D))
+x = tf.keras.layers.Conv2D(filters=64,kernel_size = 7, strides = 1, padding = "same", activation = "relu")(inputs)
+#MaxPooling2D: pool_size is window size over which to take the max
+x = tf.keras.layers.MaxPooling2D(pool_size = 6, strides = 2, padding = "valid")(x)
+x = tf.keras.layers.Conv2D(filters=128,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.Conv2D(filters=128,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.MaxPooling2D(pool_size = 6, strides = 2, padding = "valid")(x)
+x = tf.keras.layers.Conv2D(filters=256,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.Conv2D(filters=256,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.MaxPooling2D(pool_size = 6, strides = 2, padding = "valid")(x)
+#dense layers expect 1D array of features for each instance so we need to flatten.
+x = tf.keras.layers.Flatten()(x)
+x = tf.keras.layers.Dense(128, activation = 'relu')(x)
+x = tf.keras.layers.Dense(64, activation = 'relu')(x)
+yhat = tf.keras.layers.Dense(6, activation = 'softmax')(x)
+
+
+
+
+
+model = tf.keras.Model(inputs = inputs, outputs = yhat)
+model.summary()
+#Compile model
+model.compile(loss = 'categorical_crossentropy', optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
+
+#Fit model
+model.fit(x=x_train,y=y_train, batch_size=10, epochs=1) 
+
+
+
+
+
+
+
+
+########### Try 4 ######################
+
+
+
+inputs = tf.keras.layers.Input(shape=(516,1083,1), name='input') 
+#Conv2D layer (2D does not refer to gray scale (a PET scan would be 3D))
+x = tf.keras.layers.Conv2D(filters=64,kernel_size = 7, strides = 1, padding = "same", activation = "relu")(inputs)
+#MaxPooling2D: pool_size is window size over which to take the max
+x = tf.keras.layers.MaxPooling2D(pool_size = 2, strides = 2, padding = "valid")(x)
+x = tf.keras.layers.Conv2D(filters=128,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.Conv2D(filters=128,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.MaxPooling2D(pool_size = 2, strides = 2, padding = "valid")(x)
+x = tf.keras.layers.Conv2D(filters=256,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.Conv2D(filters=256,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.MaxPooling2D(pool_size = 2, strides = 2, padding = "valid")(x)
+#dense layers expect 1D array of features for each instance so we need to flatten.
+x = tf.keras.layers.Flatten()(x)
+x = tf.keras.layers.Dense(128, activation = 'relu')(x)
+x = tf.keras.layers.Dense(64, activation = 'relu')(x)
+yhat = tf.keras.layers.Dense(6, activation = 'softmax')(x)
+
+#Why do we stack two convolutional layers followed by a pooling layer, as opposed to having each convolutional layer followed by a pooling layer?
+# Answer: every convolutional layer creates a number of feature maps (e.g,64) that are individually connected to the previous layer.
+# By stacking two convolutional layers before inserting a pooling layer we allow the second convolutional layer to learn from the noisy signal, as opposed to the clean signal.
+
+model = tf.keras.Model(inputs = inputs, outputs = yhat)
+model.summary()
+#Compile model
+model.compile(loss = 'categorical_crossentropy', optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
+
+#Fit model
+model.fit(x=x_train,y=y_train, batch_size=32, epochs=1) 
