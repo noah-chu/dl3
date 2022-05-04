@@ -18,6 +18,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import PIL
 import PIL.Image
+
+"""
+ADD YOUR FILE PATH HERE IN THIS COMMENT - I will add it to the try-except error checking block
+"""
 try:
        os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train')
 except FileNotFoundError:
@@ -42,6 +46,9 @@ try:
        data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN')
 except FileNotFoundError:
        data_dir = pathlib.Path("G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\train")
+
+
+
 image_count = len(list(data_dir.glob('*/*.png')))
 image = list(data_dir.glob('*/*.png'))
 print(image_count)
