@@ -125,16 +125,228 @@ for i in range(image_count):
 
 
 
+yt = np_utils.to_categorical(y_train)
+
+
+
+
+
+
+
+
+
+
+
+
 ############### BEGIN CNN Process ################
-data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
+data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
 image_count = len(list(data_dir.glob('*/*.png')))
 I = list(data_dir.glob('*/*.png'))
 print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
 s = cv2.imread(str(I[0]))
 
-s
+
 # create training set
 x_train =[]
-for i in range(1000):
-  s = cv2.imread(str(I[i])) 
-  x_train.append(s)
+y_train=[]
+for i in range(20):
+  if i < 10:
+    s = cv2.imread(str(I[i])) 
+    x_train.append(s)
+  else:
+    s = cv2.imread(str(I[i])) 
+    y_train.append(s)
+
+
+
+
+
+  ##normalize data
+
+x_train = np.asarray(x_train)
+x_train = x_train.astype('float32')
+y_train = np.asarray(y_train)
+y_train = y_train.astype('float32')
+#x_test = x_test.astype('float32')
+x_train = x_train / 255.0
+y_train = y_train / 255.0
+#x_test = x_test / 255.0
+
+
+
+##split data and then OHE
+#y_train = x_train
+#y_train = np_utils.to_categorical(y_train)
+
+len(x_train)
+
+
+
+
+x_test =[]
+y_test=[]
+for i in range(20):
+  if i < 10:
+    s = cv2.imread(str(I[i])) 
+    x_test.append(s)
+  else:
+    s = cv2.imread(str(I[i])) 
+    y_test.append(s)
+
+
+
+
+
+
+
+x_test = np.asarray(x_test)
+x_test = x_train.astype('float32')
+y_test = np.asarray(y_test)
+y_test = y_test.astype('float32')
+#x_test = x_test.astype('float32')
+x_test = x_test / 255.0
+y_test = y_test / 255.0
+#x_test = x_test / 255.0
+
+
+
+
+
+
+
+
+
+
+  ###### CNN Layers
+
+
+
+inputs = tf.keras.layers.Input(shape=(516,1083,3), name='input') 
+x = tf.keras.layers.Conv2D(32, (3, 3), input_shape=x_train.shape[1:], activation='relu', padding='same')(inputs)
+#x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+
+x = tf.keras.layers.Conv2D(64, 3, activation='relu', padding='same')(x)
+x = tf.keras.layers.MaxPooling2D(2)(x)
+#x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+   
+x = tf.keras.layers.Conv2D(128, 3, activation='relu', padding='same')(x)
+x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+
+
+x = tf.keras.layers.Conv2D(64, 3, activation='relu', padding='same')(x)
+x = tf.keras.layers.MaxPooling2D(2)(x)
+#x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+    
+x = tf.keras.layers.Conv2D(128, 3, activation='relu', padding='same')(x)
+#x = tf.keras.layers.Dropout(0.2)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+x = tf.keras.layers.Flatten()(x)
+#x = tf.keras.layers.Dropout(0.2)(x)
+
+
+x = tf.keras.layers.Dense(32, activation='relu')(x)
+#x = tf.keras.layers.Dropout(0.3)(x)
+#x = tf.keras.layers.BatchNormalization()(x)
+yhat = tf.keras.layers.Dense(6, activation='softmax')(x)
+
+
+
+
+
+
+
+
+
+# inputs = tf.keras.layers.Input(shape=(None,516,1083,3), name='input') 
+# #Conv2D layer (2D does not refer to gray scale (a PET scan would be 3D))
+# x = tf.keras.layers.Conv2D(filters=64,kernel_size = 7, strides = 1, padding = "same", activation = "relu")(inputs)
+# #MaxPooling2D: pool_size is window size over which to take the max
+# x = tf.keras.layers.MaxPooling2D(pool_size = 6, strides = 2, padding = "valid")(x)
+# x = tf.keras.layers.Conv2D(filters=128,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+# x = tf.keras.layers.Conv2D(filters=128,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+# x = tf.keras.layers.MaxPooling2D(pool_size = 6, strides = 2, padding = "valid")(x)
+# x = tf.keras.layers.Conv2D(filters=256,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+# x = tf.keras.layers.Conv2D(filters=256,kernel_size = 3, strides = 1, padding = "same", activation = "relu")(x)
+# x = tf.keras.layers.MaxPooling2D(pool_size = 6, strides = 2, padding = "valid")(x)
+# #dense layers expect 1D array of features for each instance so we need to flatten.
+# x = tf.keras.layers.Flatten()(x)
+# x = tf.keras.layers.Dense(128, activation = 'relu')(x)
+# x = tf.keras.layers.Dense(64, activation = 'relu')(x)
+# yhat = tf.keras.layers.Dense(6, activation = 'softmax')(x)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #### compile model
+model = tf.keras.Model(inputs = inputs, outputs = yhat)
+model.summary()
+model.compile(loss='sparse_categorical_crossentropy',optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
+
+
+history = model.fit(x=x_train,y=yt, batch_size=1, epochs=1)
+
+y_train.shape
+
+
+y_train[0].shape
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
