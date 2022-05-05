@@ -13,6 +13,75 @@ from keras.utils import np_utils
 import keras
 from yaml import parse
 import glob
+import pandas as pd
+
+
+
+
+
+
+
+
+##### labels ##########
+#dir = '/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train'
+dir = '/Users/harri/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train'
+#os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN(2)/train')
+os.chdir('/Users/harri/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN_Padded_train/train')
+f = open('digitStruct.json',)
+data = json.load(f)
+
+#load the json file
+try:
+       os.chdir('/Users/harri/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train')
+       #os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train')
+except FileNotFoundError:
+       os.chdir("G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_train\\train")
+jdata = pd.read_json(r'digitStruct.json')
+jdata.head()
+
+
+#initialize empty dictionary 
+labels = {}
+for row in range(jdata.shape[0]): #grab each row of the jdata frame
+  rowlist = np.array([])
+  for box in jdata.iloc[row,0]: #inspect each number of the picture
+    #append it to an array
+    rowlist = np.append(rowlist, box['label'])
+  #add the labels of this entry to the dictionary
+  labels[row] = rowlist
+labels[0]
+
+
+try:
+  os.chdir('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
+  data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#desktop
+except FileNotFoundError:
+  try:
+    os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
+    data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
+  except FileNotFoundError:
+    data_dir = pathlib.Path('G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_train')
+data_dir
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
@@ -22,7 +91,7 @@ I = list(data_dir.glob('*/*.png'))
 print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
 s = cv2.imread(str(I[1]),cv2.IMREAD_GRAYSCALE)
 s.shape
-
+46470-13067
 
 plt.imshow(s)
 plt.show()
@@ -94,13 +163,33 @@ y_test = y_test / 255.0
 
 
 
+# READ IN EVERYTHING UP TO HERE # 
+
+
+# Do we OHE y? and is it done as seen below? #
+
+
+y_train_ohe = np_utils.to_categorical(y_train)
+y_test_ohe = np_utils.to_categorical(y_test)
 
 
 
 
 
-y_train = np_utils.to_categorical(y_train)
-y_test = np_utils.to_categorical(y_test)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ############### CNN TRY 1 ################
@@ -129,7 +218,7 @@ def create_cnn(width, height, depth, filters=(16, 32, 64), regress=False):
             x = tf.keras.layers.Activation("relu")(x)
             x = tf.keras.layers.BatchNormalization(axis=chanDim)(x)
             x = tf.keras.layers.Dropout(0.5)(x)
-            x = tf.keras.layers.Dense(6,activation = 'softmax')(x)
+            x = tf.keras.layers.Dense(1083,activation = 'softmax')(x)
             
          
             if regress:
@@ -243,7 +332,7 @@ x = tf.keras.layers.MaxPooling2D(pool_size = 6, strides = 2, padding = "valid")(
 x = tf.keras.layers.Flatten()(x)
 x = tf.keras.layers.Dense(128, activation = 'relu')(x)
 x = tf.keras.layers.Dense(64, activation = 'relu')(x)
-yhat = tf.keras.layers.Dense(6, activation = 'softmax')(x)
+yhat = tf.keras.layers.Dense(10, activation = 'softmax')(x)
 
 
 
@@ -295,4 +384,183 @@ model.summary()
 model.compile(loss = 'categorical_crossentropy', optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
 
 #Fit model
-model.fit(x=x_train,y=y_train, batch_size=32, epochs=1) 
+model.fit(x=x_train,y=y_train, batch_size=10, epochs=1) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###################### CNN Try 5 ################################
+
+
+
+
+list(labels[0])
+
+
+
+      
+
+possible_classes = 11
+
+def convert_labels(labels):
+    
+    # As per Keras conventions, the multiple labels need to be of the form [array_digit1,...5]
+    # Each digit array will be of shape (60000,11)
+        
+    # Declare output ndarrays
+    # 5 for digits, 11 for possible classes  
+    dig0_arr = np.ndarray(shape=(len(labels),possible_classes))
+    dig1_arr = np.ndarray(shape=(len(labels),possible_classes))
+    dig2_arr = np.ndarray(shape=(len(labels),possible_classes))
+    dig3_arr = np.ndarray(shape=(len(labels),possible_classes))
+    dig4_arr = np.ndarray(shape=(len(labels),possible_classes))
+    
+    for index,label in enumerate(labels):
+        
+        # Using np_utils from keras to OHE the labels in the image
+        dig0_arr[index,:] = np_utils.to_categorical(label[0],possible_classes)
+        dig1_arr[index,:] = np_utils.to_categorical(label[1],possible_classes)
+        dig2_arr[index,:] = np_utils.to_categorical(label[2],possible_classes)
+        dig3_arr[index,:] = np_utils.to_categorical(label[3],possible_classes)
+        dig4_arr[index,:] = np_utils.to_categorical(label[4],possible_classes)
+        
+    return [dig0_arr,dig1_arr,dig2_arr,dig3_arr,dig4_arr]
+
+
+
+
+
+
+
+
+
+x_labs = convert_labels(labels[0])
+
+
+
+
+train_labels = convert_labels(x_train)
+test_labels = convert_labels(test_labels)
+valid_labels = convert_labels()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+batch_size = 32
+nb_classes = 11
+nb_epoch = 24
+
+
+
+# number of convulation filters to use
+nb_filters = 32
+# size of pooling area for max pooling
+pool_size = (2, 2)
+# convolution kernel size
+kernel_size = (3, 3)
+
+# defining the input
+inputs = tf.keras.Input(shape=(516, 1083, 1))
+
+# Model taken from keras example.
+cov = tf.keras.layers.Conv2D(nb_filters,kernel_size=(kernel_size[0],kernel_size[1]),padding='same', use_bias=False)(inputs)
+cov = tf.keras.layers.BatchNormalization()(cov)
+cov = tf.keras.layers.Activation('relu')(cov)
+cov = tf.keras.layers.Conv2D(nb_filters,kernel_size=(kernel_size[0],kernel_size[1]),padding='same', use_bias=False)(cov)
+cov = tf.keras.layers.BatchNormalization()(cov)
+cov = tf.keras.layers.Activation('relu')(cov)
+cov = tf.keras.layers.MaxPooling2D(pool_size=pool_size)(cov)
+cov = tf.keras.layers.Dropout(0.3)(cov)
+
+cov = tf.keras.layers.Conv2D((nb_filters * 2),kernel_size=(kernel_size[0],kernel_size[1]), use_bias=False)(cov)
+cov = tf.keras.layers.BatchNormalization()(cov)
+cov = tf.keras.layers.Activation('relu')(cov)
+cov = tf.keras.layers.Conv2D((nb_filters * 2),kernel_size=(kernel_size[0],kernel_size[1]),padding='same', use_bias=False)(cov)
+cov = tf.keras.layers.BatchNormalization()(cov)
+cov = tf.keras.layers.Activation('relu')(cov)
+cov = tf.keras.layers.MaxPooling2D(pool_size=pool_size)(cov)
+cov = tf.keras.layers.Dropout(0.3)(cov)
+
+
+cov = tf.keras.layers.Conv2D((nb_filters * 4),kernel_size=(kernel_size[0],kernel_size[1]), use_bias=False)(cov)
+cov = tf.keras.layers.BatchNormalization()(cov)
+cov = tf.keras.layers.Activation('relu')(cov)
+cov = tf.keras.layers.Conv2D((nb_filters * 4),kernel_size=(kernel_size[0],kernel_size[1]),padding='same', use_bias=False)(cov)
+cov = tf.keras.layers.BatchNormalization()(cov)
+cov = tf.keras.layers.Activation('relu')(cov)
+cov = tf.keras.layers.MaxPooling2D(pool_size=pool_size)(cov)
+cov = tf.keras.layers.Dropout(0.3)(cov)
+
+cov = tf.keras.layers.Conv2D((nb_filters * 8),kernel_size=(kernel_size[0],kernel_size[1]), use_bias=False)(cov)
+cov = tf.keras.layers.BatchNormalization()(cov)
+cov = tf.keras.layers.Activation('relu')(cov)
+cov = tf.keras.layers.Conv2D((nb_filters * 8),kernel_size=(kernel_size[0],kernel_size[1]),padding='same', use_bias=False)(cov)
+cov = tf.keras.layers.BatchNormalization()(cov)
+cov = tf.keras.layers.Activation('relu')(cov)
+cov = tf.keras.layers.MaxPooling2D(pool_size=pool_size)(cov)
+cov = tf.keras.layers.Dropout(0.3)(cov)
+
+cov_out = tf.keras.layers.Flatten()(cov)
+
+
+# Dense Layers
+cov2 = tf.keras.layers.Dense(2056, activation='relu')(cov_out)
+cov2 = tf.keras.layers.Dropout(0.3)(cov2)
+
+
+
+# Prediction layers
+c0 = tf.keras.layers.Dense(nb_classes, activation='softmax')(cov2)
+c1 = tf.keras.layers.Dense(nb_classes, activation='softmax')(cov2)
+c2 = tf.keras.layers.Dense(nb_classes, activation='softmax')(cov2)
+c3 = tf.keras.layers.Dense(nb_classes, activation='softmax')(cov2)
+c4 = tf.keras.layers.Dense(nb_classes, activation='softmax')(cov2)
+c5 = tf.keras.layers.Dense(nb_classes, activation='softmax')(cov2)
+c6 = tf.keras.layers.Dense(nb_classes, activation='softmax')(cov2)
+
+# Defining the model
+model = tf.keras.Model(inputs=inputs,outputs=[c0,c1,c2,c3,c4,c5,c6])
+model.summary()
+
+
+# Compiling the model
+model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+
+
+    
+# Fitting the model
+model.fit(x_train,y_train_ohe,batch_size=batch_size,epochs=nb_epoch)
