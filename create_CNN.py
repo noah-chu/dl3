@@ -22,16 +22,21 @@ except FileNotFoundError:
        os.chdir("G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_train\\train")
 jdata = pd.read_json(r'digitStruct.json')
 jdata.head()
-
+jdata.iloc[0,0]
 ################  LABELS ########################
 #initialize empty dictionary 
 labels = {}
+row = 0
 for row in range(jdata.shape[0]): #grab each row of the jdata frame
-  rowlist = np.array([])
+  rowlist = np.ones(shape = (7,10), dtype = np.int64)*0
+  boxNum = 0
   for box in jdata.iloc[row,0]: #inspect each number of the picture
     #append it to an array
-    rowlist = np.append(rowlist, box['label'])
+    #rowlist = np.append(rowlist, tf.one_hot(int(box['label']), 10))
+    rowlist[boxNum] = tf.one_hot(int(box['label']), 10)
+    boxNum += 1
   #add the labels of this entry to the dictionary
+  rowlist[6] = tf.one_hot((boxNum), 10)
   labels[row] = rowlist
 labels[0]
 
