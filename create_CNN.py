@@ -13,10 +13,39 @@ from keras.utils import np_utils
 import keras
 from yaml import parse
 import glob
+import pandas as pd
 
+#load the json file
+try:
+       os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train')
+except FileNotFoundError:
+       os.chdir("G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_train\\train")
+jdata = pd.read_json(r'digitStruct.json')
+jdata.head()
 
-#data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
-data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#desktop
+################  LABELS ########################
+#initialize empty dictionary 
+labels = {}
+for row in range(jdata.shape[0]): #grab each row of the jdata frame
+  rowlist = np.array([])
+  for box in jdata.iloc[row,0]: #inspect each number of the picture
+    #append it to an array
+    rowlist = np.append(rowlist, box['label'])
+  #add the labels of this entry to the dictionary
+  labels[row] = rowlist
+labels[0]
+
+try:
+  os.chdir('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
+  data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#desktop
+except FileNotFoundError:
+  try:
+    os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
+    data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
+  except FileNotFoundError:
+    data_dir = pathlib.Path('G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_train')
+data_dir
+
 image_count = len(list(data_dir.glob('*/*.png')))
 I = list(data_dir.glob('*/*.png'))
 print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
@@ -55,15 +84,23 @@ y_train = y_train / 255.0
 #x_test = x_test / 255.0
 
 
-
 ##split data and then OHE
 #y_train = x_train
 #y_train = np_utils.to_categorical(y_train)
 
 len(x_train)
 
-#data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#laptop
-data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#desktop
+try:
+  os.chdir('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning')
+  data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#desktop
+except FileNotFoundError:
+  try:
+    os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning')
+    data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#laptop
+  except FileNotFoundError:
+    data_dir = pathlib.Path('G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_test')
+data_dir
+
 image_count = len(list(data_dir.glob('*/*.png')))
 I = list(data_dir.glob('*/*.png'))
 print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
@@ -91,13 +128,6 @@ y_test = y_test.astype('float32')
 x_test = x_test / 255.0
 y_test = y_test / 255.0
 #x_test = x_test / 255.0
-
-
-
-
-
-
-
 
 y_train = np_utils.to_categorical(y_train)
 y_test = np_utils.to_categorical(y_test)
