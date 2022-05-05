@@ -13,6 +13,27 @@ from keras.utils import np_utils
 import keras
 from yaml import parse
 import glob
+import pandas as pd
+
+#load the json file
+try:
+       os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN/train')
+except FileNotFoundError:
+       os.chdir("G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_train\\train")
+jdata = pd.read_json(r'digitStruct.json')
+jdata.head()
+
+################  LABELS ########################
+#initialize empty dictionary 
+labels = {}
+for row in range(jdata.shape[0]): #grab each row of the jdata frame
+  rowlist = np.array([])
+  for box in jdata.iloc[row,0]: #inspect each number of the picture
+    #append it to an array
+    rowlist = np.append(rowlist, box['label'])
+  #add the labels of this entry to the dictionary
+  labels[row] = rowlist
+labels[0]
 
 try:
   os.chdir('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
