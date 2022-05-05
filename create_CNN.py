@@ -103,7 +103,9 @@ y_train = np_utils.to_categorical(y_train)
 y_test = np_utils.to_categorical(y_test)
 
 
-############### CNN TRY 1 ################
+
+
+############### CNN TRY 1 #################
 
 def create_cnn(width, height, depth, filters=(16, 32, 64), regress=False):
 	# initialize the input shape and channel dimension, assuming
