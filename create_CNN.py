@@ -14,9 +14,13 @@ import keras
 from yaml import parse
 import glob
 
+try:
+  data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#desktop
+except FileNotFoundError:
+  try:
+    data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
+  except FileNotFoundError:
 
-#data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
-data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#desktop
 image_count = len(list(data_dir.glob('*/*.png')))
 I = list(data_dir.glob('*/*.png'))
 print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
