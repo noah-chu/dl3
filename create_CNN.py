@@ -13,31 +13,115 @@ from keras.utils import np_utils
 import keras
 from yaml import parse
 import glob
+import pandas as pd
+
+
+
+#load the json file
+try:
+       os.chdir('/Users/Harrison Eller/OneDrive/Desktop/MSBA/Spring 2022/BZAN 554 - Deep Learning/SVHN_Padded_Train/train')
+except FileNotFoundError:
+       os.chdir("G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_train\\train")
+jdata = pd.read_json(r'digitStruct.json')
+jdata.head()
+
+################  LABELS ########################
+#initialize empty dictionary 
+labels = {}
+for row in range(jdata.shape[0]): #grab each row of the jdata frame
+  rowlist = np.array([])
+  for box in jdata.iloc[row,0]: #inspect each number of the picture
+    #append it to an array
+    rowlist = np.append(rowlist, box['label'])
+  #add the labels of this entry to the dictionary
+  labels[row] = rowlist
+labels[0]
+
+try:
+  os.chdir('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
+  data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#desktop
+except FileNotFoundError:
+  try:
+    os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')
+    data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
+  except FileNotFoundError:
+    data_dir = pathlib.Path('G:\\My Drive\\MSBA\\Spring\\Deep Learning\\GA3\\SVHN_Padded_train')
+data_dir
+
+
+
+
+
+
+
+
+
+# Converting labels to One-hot representations of shape (set_size, digits, classes)
+possible_classes = 11
+
+def convert_labels(labels):
+    
+    # As per Keras conventions, the multiple labels need to be of the form [array_digit1,...5]
+    # Each digit array will be of shape (60000,11)
+        
+    # Declare output ndarrays
+    # 5 for digits, 11 for possible classes  
+    dig0_arr = np.ndarray(shape=(len(labels),possible_classes))
+    dig1_arr = np.ndarray(shape=(len(labels),possible_classes))
+    dig2_arr = np.ndarray(shape=(len(labels),possible_classes))
+    dig3_arr = np.ndarray(shape=(len(labels),possible_classes))
+    dig4_arr = np.ndarray(shape=(len(labels),possible_classes))
+    
+    for index,label in enumerate(labels):
+        
+        # Using np_utils from keras to OHE the labels in the image
+        dig0_arr[index,:] = np_utils.to_categorical(label[0],possible_classes)
+        dig1_arr[index,:] = np_utils.to_categorical(label[1],possible_classes)
+        dig2_arr[index,:] = np_utils.to_categorical(label[2],possible_classes)
+        dig3_arr[index,:] = np_utils.to_categorical(label[3],possible_classes)
+        dig4_arr[index,:] = np_utils.to_categorical(label[4],possible_classes)
+        
+    return [dig0_arr,dig1_arr,dig2_arr,dig3_arr,dig4_arr]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#laptop
-data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_train')#desktop
-image_count = len(list(data_dir.glob('*/*.png')))
-I = list(data_dir.glob('*/*.png'))
-print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
-s = cv2.imread(str(I[1]),cv2.IMREAD_GRAYSCALE)
-s.shape
+# data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_cp_train')#desktop
+# image_count = len(list(data_dir.glob('*/*.png')))
+# I = list(data_dir.glob('*/*.png'))
+# print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
+# s = cv2.imread(str(I[1]),cv2.IMREAD_GRAYSCALE)
+# s.shape
 
 
 plt.imshow(s)
 plt.show()
 
 
-
+os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_cp_train\\train')
 # create training set
 x_train =[]
 y_train=[]
 for i in range(20):
   if i < 10:
-    s = cv2.imread(str(I[i]),cv2.IMREAD_GRAYSCALE) 
+    s = cv2.imread("%s.png"%(i+1),cv2.IMREAD_GRAYSCALE) 
     x_train.append(s)
   else:
-    s = cv2.imread(str(I[i]),cv2.IMREAD_GRAYSCALE)
+    s = cv2.imread("%s.png"%(i+1),cv2.IMREAD_GRAYSCALE)
     y_train.append(s)
 
 
@@ -60,26 +144,27 @@ y_train = y_train / 255.0
 #y_train = x_train
 #y_train = np_utils.to_categorical(y_train)
 
-len(x_train)
+
 
 #data_dir = pathlib.Path('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#laptop
-data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#desktop
-image_count = len(list(data_dir.glob('*/*.png')))
-I = list(data_dir.glob('*/*.png'))
-print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
-s = cv2.imread(str(I[0]))
-s.shape
+# data_dir = pathlib.Path('C:\\Users\\harri\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_Padded_test')#desktop
+# image_count = len(list(data_dir.glob('*/*.png')))
+# I = list(data_dir.glob('*/*.png'))
+# print(image_count) #number of images in file (46470) (test = 0 : 13067) (train = 13068 : end)
+# s = cv2.imread(str(I[0]))
+# s.shape
 
 
 
+os.chdir('C:\\Users\\Harrison Eller\\OneDrive\\Desktop\\MSBA\\Spring 2022\\BZAN 554 - Deep Learning\\SVHN_cp_test\\test')
 x_test =[]
 y_test=[]
 for i in range(20):
   if i < 10:
-    s = cv2.imread(str(I[i]),cv2.IMREAD_GRAYSCALE) 
+    s = cv2.imread("%s.png"%(i+1),cv2.IMREAD_GRAYSCALE) 
     x_test.append(s)
   else:
-    s = cv2.imread(str(I[i]),cv2.IMREAD_GRAYSCALE) 
+    s = cv2.imread("%s.png"%(i+1),cv2.IMREAD_GRAYSCALE) 
     y_test.append(s)
 
 
@@ -99,8 +184,8 @@ y_test = y_test / 255.0
 
 
 
-y_train = np_utils.to_categorical(y_train)
-y_test = np_utils.to_categorical(y_test)
+y_train_ohe = np_utils.to_categorical(y_train)
+y_test_ohe = np_utils.to_categorical(y_test)
 
 
 
@@ -142,13 +227,13 @@ def create_cnn(width, height, depth, filters=(16, 32, 64), regress=False):
             return model
         
 tf.keras.backend.clear_session()
-model = create_cnn(1083,516,1)
+model = create_cnn(625,423,1)
 
-
+x_train.shape
 
 model.summary()
 model.compile(loss='mean_absolute_percentage_error',optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
-history = model.fit(x=x_train,y=y_train, validation_data=(x_test,y_test), batch_size=32, epochs=1)
+history = model.fit(x=x_train,y=y_train_ohe, validation_data=(x_test,y_test), batch_size=32, epochs=1)
 
 
 
